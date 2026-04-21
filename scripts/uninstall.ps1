@@ -12,7 +12,7 @@ $solidWorksInteropDlls = @(
     'SolidWorks.Interop.swpublished.dll'
 )
 $regAsmPath = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe'
-$addinsKey = "HKCU:\Software\SolidWorks\AddIns\$addinGuid"
+$addinsKey = "HKLM:\SOFTWARE\SolidWorks\AddIns\$addinGuid"
 $startupKey = "HKCU:\Software\SolidWorks\AddInsStartup\$addinGuid"
 
 function Test-IsAdministrator {

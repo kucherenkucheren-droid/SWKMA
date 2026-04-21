@@ -79,7 +79,9 @@ Release (для установки):
 2. Собирает проект в Release x64
 3. Копирует 3 SolidWorks interop DLL рядом с `SWKMA.dll`
 4. Регистрирует DLL через RegAsm
-5. Создаёт ключи реестра для SolidWorks
+5. Создаёт ключи реестра для SolidWorks:
+   - список надстроек: `HKEY_LOCAL_MACHINE\SOFTWARE\SolidWorks\AddIns\{GUID}`
+   - автозагрузка: `HKEY_CURRENT_USER\Software\SolidWorks\AddInsStartup\{GUID}`
 
 Запуск:
 ```powershell
@@ -134,7 +136,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe
 ```reg
 Windows Registry Editor Version 5.00
 
-[HKEY_CURRENT_USER\Software\SolidWorks\AddIns\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}]
+[HKEY_LOCAL_MACHINE\SOFTWARE\SolidWorks\AddIns\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}]
 @=dword:00000001
 "Title"="SWKMA"
 "Description"="Автоматизация рутины инженера-конструктора"
@@ -166,7 +168,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe
 
 Затем удалить ключи реестра:
 ```text
-HKEY_CURRENT_USER\Software\SolidWorks\AddIns\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}
+HKEY_LOCAL_MACHINE\SOFTWARE\SolidWorks\AddIns\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}
 HKEY_CURRENT_USER\Software\SolidWorks\AddInsStartup\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}
 ```
 
@@ -179,7 +181,7 @@ HKEY_CURRENT_USER\Software\SolidWorks\AddInsStartup\{64D84459-B29E-495C-9DD2-25F
 - [ ] Проект собран как `x64`
 - [ ] Используется `.NET Framework 4.8.1`
 - [ ] SolidWorks перезапущен после установки
-- [ ] Ключ `HKCU\Software\SolidWorks\AddIns\{GUID}` существует
+- [ ] Ключ `HKLM\SOFTWARE\SolidWorks\AddIns\{GUID}` существует
 
 ## Add-in появился, но не включается — чеклист
 

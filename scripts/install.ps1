@@ -17,7 +17,7 @@ $solidWorksInteropDlls = @(
 )
 $msBuildPath = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe'
 $regAsmPath = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe'
-$addinsSubKey = "Software\SolidWorks\AddIns\$addinGuid"
+$addinsSubKey = "SOFTWARE\SolidWorks\AddIns\$addinGuid"
 $startupSubKey = "Software\SolidWorks\AddInsStartup\$addinGuid"
 
 function Test-IsAdministrator {
@@ -79,7 +79,7 @@ try {
         throw 'Регистрация DLL завершилась с ошибкой.'
     }
 
-    $addinsRegistryKey = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($addinsSubKey)
+    $addinsRegistryKey = [Microsoft.Win32.Registry]::LocalMachine.CreateSubKey($addinsSubKey)
     $startupRegistryKey = [Microsoft.Win32.Registry]::CurrentUser.CreateSubKey($startupSubKey)
     try {
         $addinsRegistryKey.SetValue('', 1, [Microsoft.Win32.RegistryValueKind]::DWord)
