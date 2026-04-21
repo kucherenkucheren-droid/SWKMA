@@ -66,3 +66,43 @@
 ### Следующий шаг
 - Реализация Mprop в WPF (Sonnet или Codex gpt-5.3)
 - Сначала создать структуру проекта Visual Studio для SolidWorks add-in
+
+---
+
+## 2026-04-21 | Codex (gpt-5.3)
+### Создание структуры Visual Studio для SolidWorks add-in
+
+#### Дневник шагов
+- Шаг 1. Прочитаны правила проекта из AGENTS.md.
+- Шаг 2. Проверена текущая папка проекта и наличие DEVLOG.md.
+- Шаг 3. Проверено наличие DLL SolidWorks 2026 в `C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist`.
+- Шаг 4. Создан solution `SWKMA.sln`.
+- Шаг 5. Создан проект `src\SWKMA\SWKMA.csproj`.
+- Шаг 6. Создан основной класс add-in `src\SWKMA\SwAddin.cs`.
+- Шаг 7. Создан файл `src\SWKMA\Properties\AssemblyInfo.cs`.
+- Шаг 8. Проверена компиляция проекта обычной сборкой с временно отключенной COM-регистрацией.
+
+### Что сделано
+- Создана структура проекта Visual Studio:
+  - `SWKMA.sln`
+  - `src\SWKMA\SWKMA.csproj`
+  - `src\SWKMA\SwAddin.cs`
+  - `src\SWKMA\Properties\AssemblyInfo.cs`
+- Проект настроен как Class Library под `.NET Framework 4.8.1`.
+- Платформа проекта: `x64`.
+- Включена COM-регистрация через `<RegisterForComInterop>true</RegisterForComInterop>`.
+- Добавлены ссылки на DLL SolidWorks 2026:
+  - `SolidWorks.Interop.sldworks.dll`
+  - `SolidWorks.Interop.swconst.dll`
+  - `SolidWorks.Interop.swpublished.dll`
+- Для всех DLL SolidWorks указано `<Private>false</Private>`, чтобы они не копировались в output.
+- В `SwAddin.cs` создан класс `SwAddin` с `[ComVisible(true)]` и новым GUID.
+- `SwAddin` реализует `SolidWorks.Interop.swpublished.ISwAddin`.
+- Методы `ConnectToSW` и `DisconnectFromSW` пока сделаны заглушками и возвращают `true`.
+
+### Решения и причины
+- Использован старый формат `.csproj`, потому что он лучше подходит для `.NET Framework 4.8.1` и COM Interop.
+- В solution оставлены только конфигурации `Debug|x64` и `Release|x64`, потому что SolidWorks add-in должен работать в 64-bit.
+- Ссылки на SolidWorks DLL оставлены с `Private=false`, как требуется, чтобы не складывать библиотеки SolidWorks рядом с нашим add-in.
+- Проверка обычной сборки прошла успешно без ошибок при временном параметре `/p:RegisterForComInterop=false`.
+- Полная сборка с COM-регистрацией создала `SWKMA.dll`, но на этапе регистрации показала ошибку поиска `SolidWorks.Interop.swpublished.dll`. Это связано с тем, что DLL SolidWorks не копируются в output и не найдены загрузчиком COM-регистрации. На следующем этапе нужно отдельно настроить регистрацию add-in или путь поиска DLL.
