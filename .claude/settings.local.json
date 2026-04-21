@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:swplus.ru)",
+      "WebFetch(domain:developers.openai.com)",
+      "WebFetch(domain:www.anthropic.com)",
+      "Bash(git --version)",
+      "Bash(claude mcp *)",
+      "Bash(where claude *)",
+      "Read(//c/Users/MishG/**)",
+      "Bash(gh --version)"
+    ]
+  }
+}
