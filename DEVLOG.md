@@ -140,7 +140,42 @@
 
 ### Решения и причины
 - Для записи значения реестра по умолчанию использован .NET Registry API, потому что так создаётся именно default value, который читает SolidWorks.
-- Для `RegAsm` добавлен `/asmpath` на папку SolidWorks `api\redist`, потому что SolidWorks DLL не копируются в output.
+- Для запуска COM-класса установочный скрипт копирует 3 SolidWorks interop DLL рядом с `SWKMA.dll`. В проекте при этом сохранено `<Private>false</Private>`, то есть сборка сама их не копирует.
 - Скрипты не запускались на установку/удаление, чтобы не менять регистрацию и реестр без отдельной команды пользователя.
 - Проверка Release-сборки прошла успешно без ошибок командой MSBuild с `/p:RegisterForComInterop=false`.
 - Синтаксис `install.ps1` и `uninstall.ps1` проверен через PowerShell parser без ошибок.
+
+---
+
+## 2026-04-21 | Codex (gpt-5.3)
+### Проверка загрузки SWKMA в SolidWorks 2026
+
+#### Дневник шагов
+- Шаг 1. Повторно прочитаны AGENTS.md и ADDIN_SETUP.md.
+- Шаг 2. Проверена Release-сборка `SWKMA.dll`.
+- Шаг 3. Проверены кодировки `.cs`, `.ps1` и `.md`.
+- Шаг 4. Проверена COM-регистрация `SWKMA.SwAddin`.
+- Шаг 5. Найдена проблема: SolidWorks interop DLL не были рядом с `SWKMA.dll`, поэтому COM-загрузка могла падать.
+- Шаг 6. `install.ps1` обновлён: теперь после сборки он копирует 3 SolidWorks interop DLL рядом с `SWKMA.dll`.
+- Шаг 7. `uninstall.ps1` обновлён: теперь он удаляет эти установочные копии interop DLL.
+- Шаг 8. Ключи SolidWorks AddIns и AddInsStartup записаны в профиль пользователя MishG.
+- Шаг 9. Запущен SolidWorks 2026.
+- Шаг 10. SWKMA загружен в текущий сеанс SolidWorks через `LoadAddIn` по полному пути к DLL.
+
+### Что сделано
+- В папке `src\SWKMA\bin\x64\Release` лежат:
+  - `SWKMA.dll`
+  - `SolidWorks.Interop.sldworks.dll`
+  - `SolidWorks.Interop.swconst.dll`
+  - `SolidWorks.Interop.swpublished.dll`
+- COM-объект `SWKMA.SwAddin` создаётся успешно.
+- В реестре пользователя MishG созданы ключи:
+  - `Software\SolidWorks\AddIns\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}`
+  - `Software\SolidWorks\AddInsStartup\{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}`
+- Проверка SolidWorks API вернула `LoadAddIn=0`, это успешная загрузка.
+- `GetAddInObject` вернул объект add-in по ProgId и по GUID.
+
+### Решения и причины
+- SolidWorks interop DLL оставлены с `<Private>false</Private>` в `.csproj`, чтобы сборка проекта не копировала их автоматически.
+- Копирование interop DLL перенесено в установочный скрипт, потому что это уже этап установки, а не обычной сборки.
+- Для текущей проверки ключи реестра записаны напрямую в профиль MishG, потому что Codex работает из служебного пользователя `codexsandboxoffline`.

@@ -5,7 +5,12 @@ $addinGuid = '{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}'
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootDir = Split-Path -Parent $scriptDir
 $dllPath = Join-Path $rootDir 'src\SWKMA\bin\x64\Release\SWKMA.dll'
-$solidWorksRedistPath = 'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist'
+$outputDir = Split-Path -Parent $dllPath
+$solidWorksInteropDlls = @(
+    'SolidWorks.Interop.sldworks.dll',
+    'SolidWorks.Interop.swconst.dll',
+    'SolidWorks.Interop.swpublished.dll'
+)
 $regAsmPath = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe'
 $addinsKey = "HKCU:\Software\SolidWorks\AddIns\$addinGuid"
 $startupKey = "HKCU:\Software\SolidWorks\AddInsStartup\$addinGuid"
@@ -27,7 +32,7 @@ if (Test-Path -LiteralPath $dllPath) {
         exit 1
     }
 
-    & $regAsmPath $dllPath /unregister "/asmpath:$solidWorksRedistPath"
+    & $regAsmPath $dllPath /unregister
     if ($LASTEXITCODE -ne 0) {
         throw 'Снятие регистрации DLL завершилось с ошибкой.'
     }
@@ -35,5 +40,9 @@ if (Test-Path -LiteralPath $dllPath) {
 
 Remove-Item -LiteralPath $addinsKey -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item -LiteralPath $startupKey -Recurse -Force -ErrorAction SilentlyContinue
+
+foreach ($interopDll in $solidWorksInteropDlls) {
+    Remove-Item -LiteralPath (Join-Path $outputDir $interopDll) -Force -ErrorAction SilentlyContinue
+}
 
 Write-Host 'SWKMA удалён.'

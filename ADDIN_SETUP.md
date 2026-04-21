@@ -77,8 +77,9 @@ Release (для установки):
 Что делает:
 1. Проверяет, закрыт ли SolidWorks
 2. Собирает проект в Release x64
-3. Регистрирует DLL через RegAsm
-4. Создаёт ключи реестра для SolidWorks
+3. Копирует 3 SolidWorks interop DLL рядом с `SWKMA.dll`
+4. Регистрирует DLL через RegAsm
+5. Создаёт ключи реестра для SolidWorks
 
 Запуск:
 ```powershell
@@ -111,6 +112,13 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe
 ```
 
 ### Шаг 2. Зарегистрировать DLL
+
+Перед регистрацией рядом с `SWKMA.dll` должны лежать:
+```text
+SolidWorks.Interop.sldworks.dll
+SolidWorks.Interop.swconst.dll
+SolidWorks.Interop.swpublished.dll
+```
 
 Командная строка от **администратора**:
 ```text
@@ -185,8 +193,8 @@ HKEY_CURRENT_USER\Software\SolidWorks\AddInsStartup\{64D84459-B29E-495C-9DD2-25F
 ## Порядок разработки
 
 ```text
-1. Add-in появился в списке SolidWorks     <- сейчас здесь
-2. Add-in включается без ошибки
+1. Add-in появился в списке SolidWorks
+2. Add-in включается без ошибки           <- сейчас здесь
 3. Add-in отключается без ошибки
 4. Добавлена кнопка в меню
 5. Кнопка открывает окно Mprop (WPF)

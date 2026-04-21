@@ -8,7 +8,13 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $rootDir = Split-Path -Parent $scriptDir
 $projectPath = Join-Path $rootDir 'src\SWKMA\SWKMA.csproj'
 $dllPath = Join-Path $rootDir 'src\SWKMA\bin\x64\Release\SWKMA.dll'
+$outputDir = Split-Path -Parent $dllPath
 $solidWorksRedistPath = 'C:\Program Files\SOLIDWORKS Corp\SOLIDWORKS\api\redist'
+$solidWorksInteropDlls = @(
+    'SolidWorks.Interop.sldworks.dll',
+    'SolidWorks.Interop.swconst.dll',
+    'SolidWorks.Interop.swpublished.dll'
+)
 $msBuildPath = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\MSBuild.exe'
 $regAsmPath = 'C:\Windows\Microsoft.NET\Framework64\v4.0.30319\RegAsm.exe'
 $addinsSubKey = "Software\SolidWorks\AddIns\$addinGuid"
@@ -45,6 +51,14 @@ if (-not (Test-Path -LiteralPath $solidWorksRedistPath)) {
     exit 1
 }
 
+foreach ($interopDll in $solidWorksInteropDlls) {
+    $interopPath = Join-Path $solidWorksRedistPath $interopDll
+    if (-not (Test-Path -LiteralPath $interopPath)) {
+        Write-Host "DLL SolidWorks не найдена: $interopPath"
+        exit 1
+    }
+}
+
 Push-Location $rootDir
 try {
     & $msBuildPath $projectPath /p:Configuration=Release /p:Platform=x64 /p:RegisterForComInterop=false
@@ -56,7 +70,11 @@ try {
         throw "DLL не найдена после сборки: $dllPath"
     }
 
-    & $regAsmPath $dllPath /codebase "/asmpath:$solidWorksRedistPath"
+    foreach ($interopDll in $solidWorksInteropDlls) {
+        Copy-Item -LiteralPath (Join-Path $solidWorksRedistPath $interopDll) -Destination (Join-Path $outputDir $interopDll) -Force
+    }
+
+    & $regAsmPath $dllPath /codebase
     if ($LASTEXITCODE -ne 0) {
         throw 'Регистрация DLL завершилась с ошибкой.'
     }
