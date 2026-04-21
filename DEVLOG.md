@@ -232,3 +232,20 @@ Add-in успешно установлен и работает в SolidWorks 202
 ### Следующий шаг
 - Шаг 4: добавить кнопку в меню SolidWorks
 - Шаг 5: кнопка открывает окно Mprop (WPF)
+
+---
+
+## 2026-04-21 | Claude (Sonnet)
+### Кнопка в меню SolidWorks
+
+- Добавлен CommandManager с CommandGroup "SWKMA"
+- Кнопка "Редактор свойств" появилась в меню SolidWorks
+- Callback OpenMprop() показывает MessageBox — заглушка для следующего шага
+- Пользователь подтвердил: кнопка работает, MessageBox открывается
+
+### Что сделано в коде
+- `SwAddin.cs`: добавлены `AddCommandMgr()`, `RemoveCommandMgr()`, `OpenMprop()`, `EnableMprop()`
+- `SWKMA.csproj`: добавлена ссылка `System.Windows.Forms`
+
+### Следующий шаг
+- Шаг 5: заменить MessageBox на реальное WPF окно Mprop
