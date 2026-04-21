@@ -106,3 +106,41 @@
 - Ссылки на SolidWorks DLL оставлены с `Private=false`, как требуется, чтобы не складывать библиотеки SolidWorks рядом с нашим add-in.
 - Проверка обычной сборки прошла успешно без ошибок при временном параметре `/p:RegisterForComInterop=false`.
 - Полная сборка с COM-регистрацией создала `SWKMA.dll`, но на этапе регистрации показала ошибку поиска `SolidWorks.Interop.swpublished.dll`. Это связано с тем, что DLL SolidWorks не копируются в output и не найдены загрузчиком COM-регистрации. На следующем этапе нужно отдельно настроить регистрацию add-in или путь поиска DLL.
+
+---
+
+## 2026-04-21 | Codex (gpt-5.3)
+### Подготовка установки SolidWorks add-in
+
+#### Дневник шагов
+- Шаг 1. Прочитаны правила проекта из AGENTS.md и инструкция ADDIN_SETUP.md.
+- Шаг 2. В `SwAddin.cs` добавлен `ProgId` для COM-регистрации.
+- Шаг 3. В `ConnectToSW` добавлен вызов `SetAddinCallbackInfo2`.
+- Шаг 4. Создан скрипт установки `scripts\install.ps1`.
+- Шаг 5. Создан скрипт удаления `scripts\uninstall.ps1`.
+- Шаг 6. Проверены кодировки: `.cs` и `.ps1` сохранены в UTF-8 with BOM, `DEVLOG.md` оставлен UTF-8 без BOM.
+- Шаг 7. Проверены сборка Release x64 и синтаксис PowerShell-скриптов.
+
+### Что сделано
+- В `src\SWKMA\SwAddin.cs` добавлен атрибут `[ProgId("SWKMA.SwAddin")]`.
+- В `ConnectToSW` добавлен вызов `_solidWorks.SetAddinCallbackInfo2(0, this, _addinCookie);`.
+- `scripts\install.ps1` делает установку:
+  - проверяет запуск от администратора;
+  - проверяет, что SolidWorks закрыт;
+  - собирает проект в `Release | x64`;
+  - регистрирует DLL через `RegAsm.exe /codebase`;
+  - передаёт `RegAsm` путь к DLL SolidWorks через `/asmpath`;
+  - создаёт ключи SolidWorks AddIns и AddInsStartup для GUID `{64D84459-B29E-495C-9DD2-25F8E7A5EEF1}`;
+  - выводит сообщение `Готово. Перезапустите SolidWorks.`
+- `scripts\uninstall.ps1` делает удаление:
+  - проверяет запуск от администратора;
+  - снимает регистрацию DLL через `RegAsm.exe /unregister`;
+  - удаляет ключи SolidWorks AddIns и AddInsStartup;
+  - выводит сообщение `SWKMA удалён.`
+
+### Решения и причины
+- Для записи значения реестра по умолчанию использован .NET Registry API, потому что так создаётся именно default value, который читает SolidWorks.
+- Для `RegAsm` добавлен `/asmpath` на папку SolidWorks `api\redist`, потому что SolidWorks DLL не копируются в output.
+- Скрипты не запускались на установку/удаление, чтобы не менять регистрацию и реестр без отдельной команды пользователя.
+- Проверка Release-сборки прошла успешно без ошибок командой MSBuild с `/p:RegisterForComInterop=false`.
+- Синтаксис `install.ps1` и `uninstall.ps1` проверен через PowerShell parser без ошибок.
